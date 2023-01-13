@@ -149,8 +149,11 @@ def solve(state, goal_state, gridSize):
     return
     
 # Function that returns true if given puzzle is solvable
-def isSolvable(puzzle, gridSize, stats = False):
-    if max(puzzle) < gridSize - 1:
+def isSolvable(puzzle, gridSize, numTiles, solvedPuzzle, stats = False):
+    if(numTiles == gridSize**2):
+        return puzzle == solvedPuzzle
+
+    if (numTiles <= gridSize**2-2):
         return True
 
     # Count inversions in given puzzle
@@ -207,7 +210,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     manualEntry = args.manual
-    solvablePuzzle = not args.unsolvable
+    reqSolvablePuzzle = not args.unsolvable
 
     waitingValidGridSize = True
     while waitingValidGridSize:
@@ -245,24 +248,26 @@ if __name__ == "__main__":
                     except ValueError:
                         print("Error: The all tile values must be an integer!")
 
-            print(f"SOLVABLE: {solvablePuzzle}")
-            print(f"isSOLVABLE: {isSolvable(puzzle, gridSize)}")
+            numTiles = getNumberTiles(puzzle)
+            solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
+            puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
+
+            # DEBUG CODE
+            print(f"REQ SOLVABLE: {reqSolvablePuzzle}")
+            print(f"isSOLVABLE: {puzzleIsSolvable}")
 
             if max(puzzle) == 0:
                 print("Error: Puzzle cannot only contain empty spaces!")
                 print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
-            elif max(puzzle) != getNumberTiles(puzzle):
+            elif max(puzzle) != numTiles:
                 print("Error: Puzzles must contain sequential numbered tiles only!")
                 print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
             # TODO Fix isSolvable and logic for full tile games (see logic below for code)
-            # elif solvablePuzzle and (not isSolvable(puzzle, gridSize)):
-            #     print("Error: The given puzzle is not solvable!")
-            #     print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
+            elif reqSolvablePuzzle and (not puzzleIsSolvable):
+                print("Error: The given puzzle is not solvable!")
+                print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
             else:
                 waitingValidPuzzle = False
-
-        numTiles = getNumberTiles(puzzle)
-        solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
     else:
         waitingValidNumTiles = True
         while waitingValidNumTiles:
@@ -279,20 +284,18 @@ if __name__ == "__main__":
         puzzle = getSolvedPuzzle(gridSize, numTiles)
         solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
         random.shuffle(puzzle)
+        puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
 
-        if solvablePuzzle:
-            while not isSolvable(puzzle, gridSize):
+        if reqSolvablePuzzle:
+            while not puzzleIsSolvable:
                 random.shuffle(puzzle)
+                puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
 
     # Print puzzle to be solved out
     print("\nPuzzle:")
     print(np.reshape(puzzle, (gridSize, gridSize)))
     
-    if (numTiles == gridSize**2 and puzzle == solvedPuzzle):
-        solve(puzzle, solvedPuzzle, gridSize)
-    elif (numTiles == gridSize**2-1 and isSolvable(puzzle, gridSize, True)):
-        solve(puzzle, solvedPuzzle, gridSize)
-    elif (numTiles <= gridSize**2-2):
+    if (puzzleIsSolvable):
         solve(puzzle, solvedPuzzle, gridSize)
     else:
         print("\nNot Solvable")
