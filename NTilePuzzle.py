@@ -252,17 +252,12 @@ if __name__ == "__main__":
             solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
             puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
 
-            # DEBUG CODE
-            print(f"REQ SOLVABLE: {reqSolvablePuzzle}")
-            print(f"isSOLVABLE: {puzzleIsSolvable}")
-
             if max(puzzle) == 0:
                 print("Error: Puzzle cannot only contain empty spaces!")
                 print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
             elif max(puzzle) != numTiles:
                 print("Error: Puzzles must contain sequential numbered tiles only!")
                 print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
-            # TODO Fix isSolvable and logic for full tile games (see logic below for code)
             elif reqSolvablePuzzle and (not puzzleIsSolvable):
                 print("Error: The given puzzle is not solvable!")
                 print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
