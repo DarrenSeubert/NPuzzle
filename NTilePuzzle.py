@@ -202,6 +202,9 @@ def getSolvedPuzzle(gridSize, numTiles):
 
     return solvedPuzzle
 
+def printPuzzle(puzzle, gridSize):
+    print(np.reshape(puzzle, (gridSize, gridSize)))
+
 # Driver Code
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -254,13 +257,16 @@ if __name__ == "__main__":
 
             if max(puzzle) == 0:
                 print("Error: Puzzle cannot only contain empty spaces!")
-                print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
+                print(f"Invalid Puzzle:")
+                printPuzzle(puzzle, gridSize)
             elif max(puzzle) != numTiles:
                 print("Error: Puzzles must contain sequential numbered tiles only!")
-                print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
+                print(f"Invalid Puzzle:")
+                printPuzzle(puzzle, gridSize)
             elif reqSolvablePuzzle and (not puzzleIsSolvable):
                 print("Error: The given puzzle is not solvable!")
-                print(f"Invalid Puzzle:\n{np.reshape(puzzle, (gridSize, gridSize))}")
+                print(f"Invalid Puzzle:")
+                printPuzzle(puzzle, gridSize)
             else:
                 waitingValidPuzzle = False
     else:
@@ -288,7 +294,7 @@ if __name__ == "__main__":
 
     # Print puzzle to be solved out
     print("\nPuzzle:")
-    print(np.reshape(puzzle, (gridSize, gridSize)))
+    printPuzzle(puzzle, gridSize)
     
     if (puzzleIsSolvable):
         solve(puzzle, solvedPuzzle, gridSize)
