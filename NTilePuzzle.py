@@ -90,6 +90,7 @@ def get_succ(state, gridSize):
 
     return sorted(succStates)
 
+# TODO Implement Tree Pruning LEC 22 Games II
 def solve(state, goal_state, gridSize):
     """
     Implement the A* algorithm here.
