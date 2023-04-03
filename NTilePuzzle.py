@@ -47,8 +47,8 @@ def printSucc(state):
     """
     succStates = getSucc(state)
 
-    for succ_state in succStates:
-        print(succ_state, "h={}".format(getManhattanDistance(succ_state)))
+    for succState in succStates:
+        print(succState, "h={}".format(getManhattanDistance(succState)))
 
 def getSucc(state, gridSize):
     """
@@ -91,7 +91,7 @@ def getSucc(state, gridSize):
     return sorted(succStates)
 
 # TODO Implement Tree Pruning LEC 22 Games II
-def solve(state, goal_state, gridSize):
+def solve(state, goalState, gridSize):
     """
     Implement the A* algorithm here.
 
@@ -111,7 +111,7 @@ def solve(state, goal_state, gridSize):
     output = []
     moves = 0
     maxQLen = 0
-    h = getManhattanDistance(state, goal_state, gridSize)
+    h = getManhattanDistance(state, goalState, gridSize)
     heapq.heappush(open,(moves + h, state, (moves, h, -1)))
 
     while open:
@@ -123,7 +123,7 @@ def solve(state, goal_state, gridSize):
         closed.append(n)
         closedStates.append(n[1])
 
-        if n[1] == goal_state:
+        if n[1] == goalState:
             while True:
                 output.append((n[1], n[2][1], n[2][0]))
                 if n[2][2] == -1:
@@ -140,7 +140,7 @@ def solve(state, goal_state, gridSize):
         succs = getSucc(n[1], gridSize)
         for succ in succs:
             if succ not in closedStates:
-                h = getManhattanDistance(succ, goal_state, gridSize)
+                h = getManhattanDistance(succ, goalState, gridSize)
                 heapq.heappush(open,(moves + h, succ, (moves, h, len(closed) - 1)))
 
         currTime = time.time() - startTime
