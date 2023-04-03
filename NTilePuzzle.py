@@ -6,7 +6,7 @@ import time
 import datetime
 import argparse
 
-def get_manhattan_distance(from_state, to_state, gridSize):
+def getManhattanDistance(fromState, toState, gridSize):
     """
     This function will not be tested directly by the grader. 
 
@@ -16,8 +16,8 @@ def get_manhattan_distance(from_state, to_state, gridSize):
     RETURNS:
         A scalar that is the sum of Manhattan distances for all tiles.
     """
-    fState = np.reshape(from_state, (-1, gridSize))
-    tState = np.reshape(to_state, (-1, gridSize))
+    fState = np.reshape(fromState, (-1, gridSize))
+    tState = np.reshape(toState, (-1, gridSize))
     fStateDict = {}
     tStateDict = {}
     distance = 0
@@ -35,9 +35,9 @@ def get_manhattan_distance(from_state, to_state, gridSize):
 
     return distance
 
-def print_succ(state):
+def printSucc(state):
     """
-    This is based on get_succ function below, so should implement that function.
+    This is based on getSucc function below, so should implement that function.
 
     INPUT: 
         A state (list of length 9)
@@ -45,12 +45,12 @@ def print_succ(state):
     WHAT IT DOES:
         Prints the list of all the valid successors in the puzzle. 
     """
-    succ_states = get_succ(state)
+    succStates = getSucc(state)
 
-    for succ_state in succ_states:
-        print(succ_state, "h={}".format(get_manhattan_distance(succ_state)))
+    for succ_state in succStates:
+        print(succ_state, "h={}".format(getManhattanDistance(succ_state)))
 
-def get_succ(state, gridSize):
+def getSucc(state, gridSize):
     """
     INPUT: 
         A state (list of length 9)
@@ -111,7 +111,7 @@ def solve(state, goal_state, gridSize):
     output = []
     moves = 0
     maxQLen = 0
-    h = get_manhattan_distance(state, goal_state, gridSize)
+    h = getManhattanDistance(state, goal_state, gridSize)
     heapq.heappush(open,(moves + h, state, (moves, h, -1)))
 
     while open:
@@ -137,10 +137,10 @@ def solve(state, goal_state, gridSize):
             print(f"Solve Time: {datetime.timedelta(seconds = totalTime)} | Total Moves: {lastMoveNum} | Max Queue Length: {maxQLen}")
             return
         
-        succs = get_succ(n[1], gridSize)
+        succs = getSucc(n[1], gridSize)
         for succ in succs:
             if succ not in closedStates:
-                h = get_manhattan_distance(succ, goal_state, gridSize)
+                h = getManhattanDistance(succ, goal_state, gridSize)
                 heapq.heappush(open,(moves + h, succ, (moves, h, len(closed) - 1)))
 
         currTime = time.time() - startTime
