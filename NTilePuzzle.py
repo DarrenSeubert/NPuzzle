@@ -8,13 +8,14 @@ import argparse
 
 def getManhattanDistance(fromState, toState, gridSize):
     """
-    This function will not be tested directly by the grader. 
+    A function that calculates the Manhattan Distance between all tiles.
 
     INPUT: 
-        Two states (if second state is omitted then it is assumed that it is the goal state)
+        Two states
+        The size of one side of the grid
 
     RETURNS:
-        A scalar that is the sum of Manhattan distances for all tiles.
+        An integer that is the sum of Manhattan distances for all tiles.
     """
     fState = np.reshape(fromState, (-1, gridSize))
     tState = np.reshape(toState, (-1, gridSize))
@@ -37,13 +38,10 @@ def getManhattanDistance(fromState, toState, gridSize):
 
 def printSucc(state):
     """
-    This is based on getSucc function below, so should implement that function.
+    Prints the list of all the valid successors in the puzzle.
 
     INPUT: 
-        A state (list of length 9)
-
-    WHAT IT DOES:
-        Prints the list of all the valid successors in the puzzle. 
+        A state as a list.
     """
     succStates = getSucc(state)
 
@@ -52,11 +50,14 @@ def printSucc(state):
 
 def getSucc(state, gridSize):
     """
+    A function that gets all valid successors in the puzzle.
+
     INPUT: 
-        A state (list of length 9)
+        A state as a list
+        The size of one side of the grid
 
     RETURNS:
-        A list of all the valid successors in the puzzle (don't forget to sort the result as done below). 
+        A list of all the valid successors in the puzzle. 
     """
     succStates = []
     state = np.reshape(state, (-1, gridSize))
@@ -93,13 +94,11 @@ def getSucc(state, gridSize):
 # TODO Implement Tree Pruning LEC 22 Games II
 def solve(state, goalState, gridSize):
     """
-    Implement the A* algorithm here.
+    Implements the A* algorithm and solves the puzzle and prints a path from state to goal state along with h values, number of moves, and max queue number.
 
     INPUT: 
-        An initial state (list of length 9)
-
-    WHAT IT SHOULD DO:
-        Prints a path of configurations from initial state to goal state along  h values, number of moves, and max queue number in the format specified in the pdf.
+        Two states
+        The size of one side of the grid
     """
     print("\nSolving...")
     startTime = time.time()
@@ -147,11 +146,22 @@ def solve(state, goalState, gridSize):
         if currTime > printEvery:
             print(f"Time Elapsed: {str(datetime.timedelta(seconds = currTime))[:-7]} | Current Best Cost: {open[0][0]} | Current Queue Length: {len(open)}")
             printEvery += printGap
-    return
     
-# Function that returns true if given puzzle is solvable
 def isSolvable(puzzle, gridSize, numTiles, solvedPuzzle, stats = False):
-    if(numTiles == gridSize**2):
+    """
+    Function that returns true if given puzzle is solvable.
+
+    INPUT: 
+        An initial state
+        The size of one side of the grid
+        The number of tiles in the puzzle
+        The solution to the puzzle
+        If stats should be printed (default is false) 
+
+    RETURN:
+        True if the given puzzle is solvable.
+    """
+    if (numTiles == gridSize**2):
         return puzzle == solvedPuzzle
 
     if (numTiles <= gridSize**2-2):
@@ -182,12 +192,21 @@ def isSolvable(puzzle, gridSize, numTiles, solvedPuzzle, stats = False):
         else: # The blank is on an odd row (bottom = 1 -> top = gridSize)
             # Return true if inversion count is even
             return (inv_count % 2 == 0)
-    else: # Grid Size is Odd
+    # Grid Size is Odd
+    else:
         # Return true if inversion count is odd
         return (inv_count % 2 == 0)
 
-# Function that returns the number of non-zero tiles in the puzzle
 def getNumberTiles(puzzle):
+    """
+    A function that returns the number of non-zero tiles in the puzzle.
+
+    INPUT: 
+        The puzzle  
+
+    RETURN:
+        An integer of the number of non-zero tiles in the puzzle.
+    """
     numTiles = 0
     for tile in puzzle:
         if tile > 0:
@@ -195,8 +214,17 @@ def getNumberTiles(puzzle):
 
     return numTiles
 
-# Function that returns what the solved puzzle should look like
 def getSolvedPuzzle(gridSize, numTiles):
+    """
+    A function that returns what the solved puzzle should look like.
+
+    INPUT: 
+        The size of one side of the grid
+        The number of tiles in the puzzle  
+
+    RETURN:
+        A list representing what the solved puzzle is.
+    """
     solvedPuzzle = list(range(1, numTiles + 1))
     for _ in range(gridSize**2 - numTiles):
         solvedPuzzle.append(0)
@@ -204,19 +232,35 @@ def getSolvedPuzzle(gridSize, numTiles):
     return solvedPuzzle
 
 def printPuzzle(puzzle, gridSize):
+    """
+    A function that prints the puzzle to the console.
+
+    INPUT: 
+        The puzzle to print
+        The size of one side of the grid  
+    """
     print(np.reshape(puzzle, (gridSize, gridSize)))
 
-# Driver Code
 if __name__ == "__main__":
+    """
+    Driver code for the program.
+
+    FLAGS: 
+        -m: *Manual Mode* Puts game in manual mode for puzzle entry
+        -u: *Unsolvable Mode* Allows game to generate or accept an unsolvable game
+    """
+    # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--manual", help="Puts game in manual mode for puzzle entry", action="store_true")
     parser.add_argument("-u", "--unsolvable", help="Allows game to generate or accept an unsolvable game", action="store_true")
     args = parser.parse_args()
     
+    # Set booleans base on user flags
     manualEntry = args.manual
     reqSolvablePuzzle = not args.unsolvable
 
     waitingValidGridSize = True
+    # Prompt to get valid grid size
     while waitingValidGridSize:
         userInput = input("What is the size of one side of the grid?\n")
         try:
@@ -228,50 +272,65 @@ if __name__ == "__main__":
         except ValueError:
             print("Error: The grid size must be an integer!")
 
+    # Manual Mode
     if manualEntry:
         waitingValidPuzzle = True
+        # Prompt to get valid puzzle
         while waitingValidPuzzle:
             print("Enter the tiles for the puzzle:")
             puzzle = []
+            # Loop to fill in all the tiles
             for i in range(gridSize**2):
                 waitingValidTile = True
+                # Prompt to get valid tile
                 while waitingValidTile:
                     userInput = input(f"Tile {i+1}: ")
                     try:
                         tileValue = int(userInput)
 
+                        # Duplicate tile case
                         if tileValue in puzzle and tileValue != 0:
                             print(f"Error: The tile value of {tileValue} is already in the puzzle")
                             print(f"Current Puzzle: {puzzle}")
+                        # Success case
                         elif tileValue >= 0 and tileValue <= gridSize**2:
                             puzzle.append(tileValue)
                             waitingValidTile = False
+                        # Out of bounds case
                         else:
                             print(f"Error: Tile values must be between 0 (empty space) and {gridSize**2}!")
                             print(f"Current Puzzle: {puzzle}")
+                    # Non-integer case
                     except ValueError:
-                        print("Error: The all tile values must be an integer!")
+                        print("Error: All tile values must be an integer!")
 
+            # Count the number of tiles in puzzle, generate the solved puzzle, and check if the puzzle is solvable
             numTiles = getNumberTiles(puzzle)
             solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
             puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
 
+            # Blank puzzle case
             if max(puzzle) == 0:
                 print("Error: Puzzle cannot only contain empty spaces!")
                 print(f"Invalid Puzzle:")
                 printPuzzle(puzzle, gridSize)
+            # Non-sequential tiles case
             elif max(puzzle) != numTiles:
                 print("Error: Puzzles must contain sequential numbered tiles only!")
                 print(f"Invalid Puzzle:")
                 printPuzzle(puzzle, gridSize)
+            # Solvable puzzle check
             elif reqSolvablePuzzle and (not puzzleIsSolvable):
                 print("Error: The given puzzle is not solvable!")
                 print(f"Invalid Puzzle:")
                 printPuzzle(puzzle, gridSize)
+            # Valid puzzle case
             else:
                 waitingValidPuzzle = False
+    # Random Puzzle Mode
     else:
         waitingValidNumTiles = True
+        # Prompt to get number of tiles
         while waitingValidNumTiles:
             userInput = input("How many tiles should be in the puzzle?\n")
             try:
@@ -283,12 +342,15 @@ if __name__ == "__main__":
             except ValueError:
                 print("Error: The number of tiles must be an integer!")
 
+        # Generate the puzzle, generate the solved puzzle, shuffle the normal puzzle, and check if the puzzle is solvable
         puzzle = getSolvedPuzzle(gridSize, numTiles)
         solvedPuzzle = getSolvedPuzzle(gridSize, numTiles)
         random.shuffle(puzzle)
         puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
 
+        # Solvable puzzle check
         if reqSolvablePuzzle:
+            # Shuffle the puzzle until it is solvable
             while not puzzleIsSolvable:
                 random.shuffle(puzzle)
                 puzzleIsSolvable = isSolvable(puzzle, gridSize, numTiles, solvedPuzzle)
@@ -297,6 +359,7 @@ if __name__ == "__main__":
     print("\nPuzzle:")
     printPuzzle(puzzle, gridSize)
     
+    # If the puzzle is solvable, solve it, otherwise print message
     if (puzzleIsSolvable):
         solve(puzzle, solvedPuzzle, gridSize)
     else:
