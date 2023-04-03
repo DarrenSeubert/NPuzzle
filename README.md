@@ -1,7 +1,7 @@
 # NTilePuzzle
 Program that solves a N Tile Puzzle using the A* algorithm and tree pruning.
 
-**Extensions (TODO):**  
+**Future Extensions:**  
 Implement Walking Distance  
 Lower Bound Pruning  
 
