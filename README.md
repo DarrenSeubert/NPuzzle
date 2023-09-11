@@ -1,5 +1,5 @@
-# NTilePuzzle
-Program that solves a N Tile Puzzle using the A* algorithm and tree pruning.
+# NPuzzle
+Program that solves a N Puzzle using the A* algorithm and tree pruning.
 
 **Future Extensions:**  
 Implement Walking Distance Heuristic
