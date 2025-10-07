@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build .exe with PyInstaller",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-Command",
+				"pyinstaller --onefile NPuzzle.py; Move-Item -Force ./dist/NPuzzle.exe ./NPuzzle.exe; Remove-Item -Recurse -Force ./build; Remove-Item -Recurse -Force ./dist; Remove-Item -Force ./NPuzzle.spec"
+			],
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
