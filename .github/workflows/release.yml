@@ -1,0 +1,76 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history
+
+      - name: Check if tag commit is on main
+        id: tag_on_main
+        continue-on-error: true
+        run: |
+          git fetch origin main
+          $TAG_COMMIT = git rev-parse $env:GITHUB_REF_NAME
+          git merge-base --is-ancestor $TAG_COMMIT origin/main
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Tag commit is present on main."
+            echo "on_main=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Host "Tag commit is NOT present on main."
+            echo "on_main=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Generate exe
+        if: steps.tag_on_main.outputs.on_main == 'true'
+        run: |
+          pip install -r requirements.txt
+          pyinstaller --onefile NPuzzle.py
+
+      - name: Generate changelog
+        id: changelog
+        if: steps.tag_on_main.outputs.on_main == 'true'
+        run: |
+          $REPO_URL = "https://github.com/DarrenSeubert/NPuzzle"
+          $tags = git tag --sort=-creatordate | Select-String '^v[0-9]+\.[0-9]+\.[0-9]+$' | ForEach-Object { $_.ToString().Trim() } | Where-Object { $_ -ne $env:GITHUB_REF_NAME }
+          $PREV_TAG = $tags | Select-Object -Last 1
+          if ([string]::IsNullOrEmpty($PREV_TAG)) {
+            $CHANGELOG = (git log --oneline $env:GITHUB_REF_NAME) -join "`n"
+            $FULL_DIFF_URL = "$REPO_URL/commits/$($env:GITHUB_REF_NAME)"
+          } else {
+            $CHANGELOG = (git log --oneline $PREV_TAG..$env:GITHUB_REF_NAME) -join "`n"
+            $FULL_DIFF_URL = "$REPO_URL/compare/$PREV_TAG...$($env:GITHUB_REF_NAME)"
+          }
+          echo "changelog<<EOF" >> $env:GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $env:GITHUB_OUTPUT
+          echo "EOF" >> $env:GITHUB_OUTPUT
+          echo "full_diff_url=$FULL_DIFF_URL" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: steps.tag_on_main.outputs.on_main == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            **Full Diff**: ${{ steps.changelog.outputs.full_diff_url }}
+          files:
+            ./dist/NPuzzle.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
