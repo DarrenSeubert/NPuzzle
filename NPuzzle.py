@@ -413,3 +413,6 @@ if __name__ == "__main__":
         solve(puzzle, solvedPuzzle, gridSize)
     else:
         print("\nNot Solvable")
+
+    # Wait for the user to hit enter before closing
+    input("\nPress Enter to Exit")
